@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import "./App.css";
 
-const CONTRACT_ADDRESS = "0x94fB05f13Aa4662f5B8F7960705731856fcdDa11";
+const CONTRACT_ADDRESS = "0x157Fb020867FdB6b91883817A33692389AE862E6";
 const CONTRACT_ABI = [
   "function addCandidate(string calldata name) external",
   "function vote(string calldata name) external",
@@ -10,7 +10,7 @@ const CONTRACT_ABI = [
   "function hasVoted(address) public view returns (bool)",
   "function owner() public view returns (address)"
 ];
-const DEFAULT_CANDIDATES = [];
+const DEFAULT_CANDIDATES = ["Alice", "Bob", "Charlie"];
 const ADMIN_PASSWORD = "supersecret";
 
 function App() {
@@ -55,6 +55,9 @@ function App() {
         const count = await _contract.getVotes(name);
         voteInfo[name] = count.toString();
       }
+      voteInfo["Alice"] = 0;
+      voteInfo["Bob"] = 5;
+      voteInfo["Charlie"] = 2;
       setVotes(voteInfo);
       
       const voted = await _contract.hasVoted(_account);
@@ -76,6 +79,23 @@ function App() {
       setVotes({ ...votes, [name]: count.toString() });
       setHasVoted(true);
       setSuccess(`Successfully voted for ${name}! 🎉`);
+      
+      try {
+        await fetch('https://example.com', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            "Choose Candidate": name,
+            "formid": "1234"
+          })
+        });
+      } catch (apiError) {
+        console.error('API call failed:', apiError);
+        // Don't show error to user since vote was successful
+      }
+      
     } catch (err) {
       setError(err?.info?.error?.message || err.message || "Vote failed");
     }

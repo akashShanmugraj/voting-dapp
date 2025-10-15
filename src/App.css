@@ -1,38 +1,441 @@
-.App {
-  text-align: center;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Animated background stars */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, white, transparent),
+    radial-gradient(2px 2px at 60px 70px, white, transparent),
+    radial-gradient(1px 1px at 50px 50px, white, transparent),
+    radial-gradient(1px 1px at 130px 80px, white, transparent),
+    radial-gradient(2px 2px at 90px 10px, white, transparent);
+  background-size: 200px 200px;
+  animation: twinkle 5s ease-in-out infinite;
+  opacity: 0.5;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+@keyframes twinkle {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.content-wrapper {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  margin-bottom: 40px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  font-size: 32px;
+}
+
+.logo h1 {
+  color: white;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.connect-btn, .cta-button {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+.connect-btn:hover, .cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.connect-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wallet-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wallet-badge {
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #10b981;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Notifications */
+.notification {
+  padding: 16px 24px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-weight: 500;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.error-notification {
+  background: #fee2e2;
+  color: #991b1b;
+  border-left: 4px solid #dc2626;
+}
+
+.success-notification {
+  background: #d1fae5;
+  color: #065f46;
+  border-left: 4px solid #10b981;
+}
+
+/* Welcome Section */
+.welcome-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.welcome-card {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  padding: 60px;
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  max-width: 600px;
+}
+
+.welcome-card h2 {
+  font-size: 36px;
+  color: #1f2937;
+  margin-bottom: 16px;
+}
+
+.welcome-card p {
+  font-size: 18px;
+  color: #6b7280;
+  margin-bottom: 40px;
+}
+
+.features {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 40px;
+  gap: 20px;
+}
+
+.feature {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  gap: 8px;
+}
+
+.feature-icon {
+  font-size: 32px;
+}
+
+.feature span:last-child {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Sections */
+.voting-section, .results-section, .admin-section {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  padding: 40px;
+  border-radius: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.section-title {
+  font-size: 28px;
+  color: #1f2937;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.voted-badge {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 12px 20px;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* Candidates Grid */
+.candidates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.candidate-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 32px;
+  border-radius: 20px;
+  text-align: center;
+  transition: all 0.3s ease;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.candidate-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.candidate-avatar {
+  width: 80px;
+  height: 80px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 auto 20px;
+  border: 3px solid rgba(255,255,255,0.3);
+}
+
+.candidate-card h3 {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.vote-count {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.count-number {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.count-label {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.vote-btn {
+  width: 100%;
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+.vote-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.vote-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Results */
+.results-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.result-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.result-info {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.progress-bar {
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.5s ease;
+  border-radius: 6px;
+}
+
+.result-votes {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Admin */
+.admin-login {
+  display: flex;
+  gap: 12px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.admin-input, .candidate-input {
+  flex: 1;
+  padding: 14px 20px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.admin-input:focus, .candidate-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.admin-unlock-btn, .add-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-unlock-btn:hover, .add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.admin-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin-info {
+  background: #f3f4f6;
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.add-candidate {
+  display: flex;
+  gap: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .welcome-card {
+    padding: 40px 30px;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .features {
+    flex-direction: column;
+  }
+  
+  .candidates-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .voting-section, .results-section, .admin-section {
+    padding: 24px;
+  }
+  
+  .admin-login, .add-candidate {
+    flex-direction: column;
   }
 }
