@@ -1,19 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import "./App.css";
+import CONTRACT_ABI from "./contractABI.json";
 
 const CONTRACT_ADDRESS = "0x3A683DB571e2Af879D6331586a684218373f7498";
-const CONTRACT_ABI = [
-  "function addCandidate(string calldata name) external",
-  "function vote(string calldata name) external",
-  "function getVotes(string calldata name) external view returns (uint256)",
-  "function hasVoted(address) public view returns (bool)",
-  "function owner() public view returns (address)",
-  "function isCandidate(bytes32) public view returns (bool)",
-  "function candidateId(string calldata name) external pure returns (bytes32)",
-  "event CandidateAdded(string name, bytes32 id)",
-  "event Voted(address indexed voter, string candidate, uint256 newTotal)",
-];
 const DEFAULT_CANDIDATES = ["Alice", "Bob", "Charlie"];
 const ADMIN_PASSWORD = "supersecret";
 
@@ -31,6 +21,38 @@ function App() {
   const [ownerAddress, setOwnerAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [connected, setConnected] = useState(false);
+
+  // Debug function to check contract deployment
+  async function debugContract() {
+    if (!provider) {
+      console.log("No provider available");
+      return;
+    }
+    
+    try {
+      // Check if there's code at the contract address
+      const code = await provider.getCode(CONTRACT_ADDRESS);
+      console.log("Contract code:", code);
+      
+      if (code === "0x") {
+        console.error("❌ No contract deployed at this address!");
+        setError("No contract found at the specified address. Please check your contract address and network.");
+        return false;
+      } else {
+        console.log("✅ Contract found at address");
+      }
+
+      // Check network
+      const network = await provider.getNetwork();
+      console.log("Connected to network:", network.name, "Chain ID:", network.chainId);
+
+      return true;
+    } catch (error) {
+      console.error("Debug error:", error);
+      setError(`Debug error: ${error.message}`);
+      return false;
+    }
+  }
 
   // Clean up event listeners when component unmounts or contract changes
   useEffect(() => {
@@ -106,6 +128,62 @@ function App() {
       );
 
       setProvider(_provider);
+      
+      // Debug: Check if contract is deployed
+      try {
+        // Check network first
+        const network = await _provider.getNetwork();
+        console.log("Connected to network:", network.name, "Chain ID:", network.chainId);
+        
+        // Check if we're on Sepolia (Chain ID: 11155111)
+        if (network.chainId !== 11155111n) {
+          setError(`❌ Wrong network! Please switch MetaMask to Sepolia testnet. Currently on: ${network.name} (Chain ID: ${network.chainId})`);
+          setLoading(false);
+          return;
+        }
+        
+        // Add retry logic for rate limiting
+        let retries = 3;
+        let code;
+        
+        while (retries > 0) {
+          try {
+            code = await _provider.getCode(CONTRACT_ADDRESS);
+            break; // Success, exit retry loop
+          } catch (codeError) {
+            if (codeError.message.includes("circuit breaker") && retries > 1) {
+              console.log(`Rate limited, retrying... (${retries - 1} attempts left)`);
+              await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+              retries--;
+            } else {
+              throw codeError; // Re-throw if not rate limiting or no retries left
+            }
+          }
+        }
+        
+        console.log("Contract code:", code);
+        
+        if (code === "0x") {
+          console.error("❌ No contract deployed at this address!");
+          setError(`No contract found at address ${CONTRACT_ADDRESS} on Sepolia. Please verify your contract address.`);
+          setLoading(false);
+          return;
+        } else {
+          console.log("✅ Contract found at address on Sepolia");
+        }
+      } catch (debugError) {
+        console.error("Debug error:", debugError);
+        
+        if (debugError.message.includes("circuit breaker")) {
+          setError("❌ MetaMask rate limit reached. Please wait 30 seconds and try again, or restart MetaMask.");
+        } else {
+          setError(`Network error: ${debugError.message}`);
+        }
+        
+        setLoading(false);
+        return;
+      }
+
       setAccount(_account);
       setContract(_contract);
       setConnected(true);
@@ -180,6 +258,36 @@ function App() {
     setLoading(false);
   }
 
+  async function registerDefaultCandidates() {
+    setLoading(true);
+    try {
+      for (const candidate of DEFAULT_CANDIDATES) {
+        try {
+          console.log(`Checking if ${candidate} is already registered...`);
+          // Check if candidate is already registered using candidateId function
+          const candidateHash = await contract.candidateId(candidate);
+          const isRegistered = await contract.isCandidate(candidateHash);
+          
+          if (!isRegistered) {
+            console.log(`Registering ${candidate}...`);
+            const tx = await contract.addCandidate(candidate);
+            await tx.wait();
+            console.log(`✅ ${candidate} registered successfully`);
+          } else {
+            console.log(`✅ ${candidate} already registered`);
+          }
+        } catch (candidateError) {
+          console.error(`Error with candidate ${candidate}:`, candidateError);
+        }
+      }
+      setSuccess("Default candidates registered! You can now vote. 🎉");
+    } catch (error) {
+      console.error("Error registering candidates:", error);
+      setError(`Failed to register candidates: ${error.message}`);
+    }
+    setLoading(false);
+  }
+
   function unlockAdmin() {
     if (
       adminPassword === ADMIN_PASSWORD &&
@@ -188,6 +296,9 @@ function App() {
       setAdminUnlocked(true);
       setError("");
       setSuccess("Admin panel unlocked! 🔓");
+      
+      // Automatically register default candidates
+      registerDefaultCandidates();
     } else {
       setError("❌ Incorrect password or you're not the contract owner");
     }
@@ -227,6 +338,13 @@ function App() {
         )}
         {success && (
           <div className="notification success-notification">{success}</div>
+        )}
+
+        {/* Contract Setup Helper */}
+        {connected && account.toLowerCase() === ownerAddress.toLowerCase() && !adminUnlocked && (
+          <div className="notification" style={{backgroundColor: '#e3f2fd', color: '#1565c0', border: '1px solid #1976d2'}}>
+            💡 <strong>Contract Owner Detected!</strong> Unlock admin panel to register default candidates before voting.
+          </div>
         )}
 
         {/* Main Content */}
