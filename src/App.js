@@ -12,7 +12,7 @@ const CONTRACT_ABI = [
   "function isCandidate(bytes32) public view returns (bool)",
   "function candidateId(string calldata name) external pure returns (bytes32)",
   "event CandidateAdded(string name, bytes32 id)",
-  "event Voted(address indexed voter, string candidate, uint256 newTotal)"
+  "event Voted(address indexed voter, string candidate, uint256 newTotal)",
 ];
 const DEFAULT_CANDIDATES = ["Alice", "Bob", "Charlie"];
 const ADMIN_PASSWORD = "supersecret";
