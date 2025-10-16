@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import "./App.css";
 import CONTRACT_ABI from "./contractABI.json";
 
-const CONTRACT_ADDRESS = "0x3A683DB571e2Af879D6331586a684218373f7498";
+const CONTRACT_ADDRESS = "0xEBf37C304E19858C86D7fa99195211413C1AD4eE";
 const DEFAULT_CANDIDATES = ["Alice", "Bob", "Charlie"];
 const ADMIN_PASSWORD = "supersecret";
 
